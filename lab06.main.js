@@ -265,31 +265,53 @@ class ServiceNowAdapter extends EventEmitter {
    *   handles the response.
    */
   getRecord(callback) {
+
     /**
      * Write the body for this function.
      * The function is a wrapper for this.connector's get() method.
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     this.connector.get((data, error) => {
-        if (error) {
-          callback(data, error);} 
-        else {
-            if (data.hasOwnProperty('body')) {
-              var body_array = (JSON.parse(data.body));
-              var num_results = body_array.result.length;
-              var changeTicket = [];
+     this.connector.get( (data, error) => {
+     var changeTicket={}
+     var ArrayObj = []
+     
+ for(var key in data)
+{
+    if(key === "body")
+{
+    var obj= data[key];
+    var obj2=JSON.parse(obj);
+    var obj3=obj2.result;
 
-              for(var i = 0; i < num_results; i += 1) {
-                var result_array = (JSON.parse(data.body).result);
-                changeTicket.push({"change_ticket_number" : result_array[i].number, "active" : result_array[i].active, "priority" : result_array[i].priority,
-                                   "description" : result_array[i].description, "work_start" : result_array[i].work_start, "work_end" : result_array[i].work_end,
-                                   "change_ticket_key" : result_array[i].sys_id});
-              } 
-              callback(changeTicket, error); 
-            }
-          } 
-      });
+    
+
+    console.log("the value inside post.................",obj3)
+for(let i=0; i<obj3.length;i++)
+{
+    changeTicket ={
+      "change_ticket_number":obj3[i].number,
+      "active":obj3[i].active,
+      "priority":obj3[i].priority,
+      "description":obj3[i].description,
+      "work_start":obj3[i].work_start,
+      "work_end":obj3[i].work_end,
+      "change_ticket_key":obj3[i].sys_id
+  }
+
+  ArrayObj.push(changeTicket)
+}
+   
+}} 
+
+console.log("the value is:.....",ArrayObj)
+
+data=ArrayObj
+
+//data["body"]["result"]= returnVar
+callback(data,error)
+
+     });
   }
 
   /**
@@ -301,30 +323,50 @@ class ServiceNowAdapter extends EventEmitter {
    * @param {ServiceNowAdapter~requestCallback} callback - The callback that
    *   handles the response.
    */
-  postRecord(callback) {
+ postRecord(callback) {
+
     /**
      * Write the body for this function.
      * The function is a wrapper for this.connector's post() method.
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     this.connector.post((data, error) => {
-        if (error) {
-            //console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
-            callback(data, error);} 
-        else {
-            if (data.hasOwnProperty('body')) {
-              var changeTicket = {};
-              var result_array = (JSON.parse(data.body).result);
-              changeTicket = ({"change_ticket_number" : result_array.number, "active" : result_array.active, "priority" : result_array.priority,
-                                   "description" : result_array.description, "work_start" : result_array.work_start, "work_end" : result_array.work_end,
-                                   "change_ticket_key" : result_array.sys_id});
-              callback(changeTicket, error); 
-            } 
-        }            
-     });    
+     this.connector.post( (data, error) => {
+     var newChangeTicket={}
+     
+     
+ for(var key in data)
+{
+    if(key === "body")
+{
+    var obj= data[key];
+    var obj2=JSON.parse(obj);
+    var obj3=obj2.result;
+
+    
+
+    console.log("the value inside post.................",obj3)
+
+    newChangeTicket ={
+      "change_ticket_number":obj3.number,
+      "active":obj3.active,
+      "priority":obj3.priority,
+      "description":obj3.description,
+      "work_start":obj3.work_start,
+      "work_end":obj3.work_end,
+      "change_ticket_key":obj3.sys_id
+  }
+}} 
+
+
+data=newChangeTicket
+
+//data["body"]["result"]= returnVar
+callback(data,error)
+
+     });
+
   }
 }
-
 
 module.exports = ServiceNowAdapter;
